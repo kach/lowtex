@@ -1,0 +1,22 @@
+{
+  "name": "lowtex",
+  "version": "0.0.0",
+  "description": "Fancy .txt files",
+  "main": "lowtex.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "text",
+    "transformation",
+    "markdown",
+    "latex",
+    "txt"
+  ],
+  "author": "Hardmath123",
+  "license": "MIT",
+  "dependencies": {
+    "hyphenation.en-us": "~0.2.1",
+    "hypher": "~0.2.1"
+  }
+}
