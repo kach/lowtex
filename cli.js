@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var opts = require("nomnom")
+    .script("lowtex")
     .option('input', {
         position: 0,
         help: 'input file'
