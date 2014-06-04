@@ -18,8 +18,13 @@ LowTeX--pronounced "low-tech"--is a small text transformation package that gener
 
 A LowTeX document consists of text, with interspersed **directives**, which are prefixed with an `@`. A directive is either a **setting**, a **block**, or a **command**. Text is processed line-by-line, being wrapped and aligned according to the settings. A blank line (or directive) indicates the end of a paragraph.
 
+@vspace
+
 A setting is declared with the line `@set <name> <value>`. LowTeX mantains an internal stack of settings. To restore a setting to its previous value, use `@unset <name>`.
 
 A block is declared with the line `@begin <name> <arguments>`, and terminated with the line `@end`. Blocks transform the text inside them. An example of a block is the **underline** block, which underlines the text inside it.
 
 A command is simply `@<name> <arguments>`. For example, **@vspace n** adds `n` blank lines.
+
+@vspace
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.

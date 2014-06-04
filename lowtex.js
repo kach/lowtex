@@ -176,11 +176,25 @@ Converter.prototype.filters.underline = {
         return ans;
     }
 };
+Converter.prototype.filters.margin = {
+    "begin": function(size) {
+        this.set("width", this.get("width") - Number(size));
+    },
+    "end": function(lines, args) {
+        this.unset("width");
+        var ans = [];
+        var t = this;
+        lines.forEach(function(l) {
+            ans.push(t.nspace(Number(args[0])) + l);
+        });
+        return ans;
+    }
+};
 
 Converter.prototype.commands = {};
 Converter.prototype.commands.vspace = function(n) {
     if (!n) {n = 1};
-    for (var i=0; i<n; i++) {
+    for (var i=0; i<Number(n); i++) {
         this.feedLines([this.nspace(this.get("width"))]);
     }
 };
