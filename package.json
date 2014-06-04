@@ -18,6 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "hyphenation.en-us": "~0.2.1",
-    "hypher": "~0.2.1"
+    "hypher": "~0.2.1",
+    "cli-color": "~0.3.2"
   }
 }

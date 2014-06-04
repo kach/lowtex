@@ -6,8 +6,8 @@
 */
 
 var stream = require("stream"),
-    util = require("util");
-
+    util = require("util"),
+    clc = require("cli-color");
 
 function Converter() {
     stream.Transform.call(this);
@@ -46,6 +46,9 @@ Converter.prototype.get = function(name) {
 
 
 Converter.prototype.feedWords = function(line, b) {
+    line = line.replace(/\*\*(.*?)\*\*/g, function(a, b) {
+        return b.toUpperCase();
+    });
     var words = line.split(/\s+/);
     var buffer = b;
     var needsSpace = false;
