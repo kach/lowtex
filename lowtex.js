@@ -65,9 +65,9 @@ Converter.prototype.feedWords = function(line, b) {
 };
 
 Converter.prototype.align = function(line) {
-    var part1 = Math.floor((this.get("width") - line.length + 1)/2);
+    var part1 = Math.floor((this.get("width") - line.length)/2);
     var p1 = this.nspace(part1);
-    var part2 = (this.get("width") - line.length + 1) - part1;
+    var part2 = (this.get("width") - line.length) - part1;
     var p2 = this.nspace(part2);
     switch(this.get("align")) {
     case "left":
