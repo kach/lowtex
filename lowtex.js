@@ -8,7 +8,6 @@
 var stream = require("stream"),
     util = require("util");
 
-var PARAGRAPH_BREAK = {};
 
 function Converter() {
     stream.Transform.call(this);
@@ -18,6 +17,7 @@ function Converter() {
         width: ['80'],
         align: ['left'],
         indent: ['off'],
+        pre: ['off'],
     };
 
     // Filter stack
@@ -37,7 +37,11 @@ Converter.prototype.unset = function(name) {
     this.settings[name].pop();
 };
 Converter.prototype.get = function(name) {
-    return this.settings[name][this.settings[name].length-1];
+    var val = this.settings[name][this.settings[name].length-1];
+    if (Number(val)) val = Number(val);
+    if (val === "on") val = true;
+    if (val === "off") val = false;
+    return val;
 };
 
 
@@ -46,7 +50,7 @@ Converter.prototype.feedWords = function(line, b) {
     var buffer = b;
     var needsSpace = false;
     for (var i=0; i<words.length; i++) {
-        if ((buffer + " " + words[i]).length < parseInt(this.get("width"))) {
+        if ((buffer + " " + words[i]).length < this.get("width")) {
             buffer += (needsSpace ? " " : "") + words[i];
             needsSpace = true;
         } else {
@@ -134,17 +138,20 @@ Converter.prototype._transform = function (chunk, encoding, callback) {
             endpara();
             this.doCommand(command[1].toLowerCase().split(/\s+/g));
         } else {
-            if (/^\s*$/.test(line)) {
-                endpara();
+            if (this.get("pre")) {
+                this.feedLines([line]);
             } else {
-                if (newP === false) {
-                    this.buffer = this.get("indent") === "on" ? "  " : "";
+                if (/^\s*$/.test(line)) {
+                    endpara();
+                } else {
+                    if (newP === false) {
+                        this.buffer = this.get("indent") ? "   " : "";
+                    }
+                    newP = true;
+                    this.buffer = this.feedWords(line, this.buffer);
                 }
-                newP = true;
-                this.buffer = this.feedWords(line, this.buffer);
             }
         }
-        // console.log(this.stack);
     }
     callback();
 };
@@ -168,14 +175,15 @@ Converter.prototype.filters.underline = {
 };
 
 Converter.prototype.commands = {};
-Converter.prototype.commands.vspace = function() {
-    this.feedLines([this.nspace(parseInt(this.get("width")))]);
+Converter.prototype.commands.vspace = function(n) {
+    if (!n) {n = 1};
+    for (var i=0; i<n; i++) {
+        this.feedLines([this.nspace(this.get("width"))]);
+    }
 };
 
 Converter.prototype.nspace = function(n) {
     return new Array(n+1).join(" ");
 };
 
-var c = new Converter();
-process.stdin.pipe(c);
-c.pipe(process.stdout);
+module.exports = Converter;

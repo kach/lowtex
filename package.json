@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "description": "Fancy .txt files",
   "main": "lowtex.js",
+  "bin": "cli.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cat example.lt | node cli.js"
   },
   "keywords": [
     "text",
