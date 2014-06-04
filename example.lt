@@ -26,7 +26,7 @@ Install LowTeX with `npm install -g lowtex`. Create a new document in your favor
 
 @vspace
 
-A LowTeX document consists of text, with interspersed **directives**, which are prefixed with an `@`. A directive is either a **setting**, a **block**, or a **command**. Text is processed line-by-line, being wrapped and aligned according to the settings. A blank line (or directive) indicates the end of a paragraph.
+A LowTeX document consists of text, with interspersed **directives**, which are prefixed with an `@`. A directive is either a **setting**, a **block**, or a **command**. Text is processed line-by-line, being wrapped and aligned according to the settings. A blank line (or directive) indicates the end of a paragraph. A line prefixed with `#` is a comment and is skipped silently.
 
 @vspace
 
