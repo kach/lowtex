@@ -20,5 +20,9 @@
     "hyphenation.en-us": "~0.2.1",
     "hypher": "~0.2.1",
     "cli-color": "~0.3.2"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/Hardmath123/lowtex"
   }
 }
