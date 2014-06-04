@@ -141,17 +141,19 @@ Converter.prototype._transform = function (chunk, encoding, callback) {
             endpara();
             this.doCommand(command[1].toLowerCase().split(/\s+/g));
         } else {
-            if (this.get("pre")) {
-                this.feedLines([line]);
-            } else {
-                if (/^\s*$/.test(line)) {
-                    endpara();
+            if (!/^\s*#/.exec(line)) {
+                if (this.get("pre")) {
+                    this.feedLines([line]);
                 } else {
-                    if (newP === false) {
-                        this.buffer = this.get("indent") ? "   " : "";
+                    if (/^\s*$/.test(line)) {
+                        endpara();
+                    } else {
+                        if (newP === false) {
+                            this.buffer = this.get("indent") ? "   " : "";
+                        }
+                        newP = true;
+                        this.buffer = this.feedWords(line, this.buffer);
                     }
-                    newP = true;
-                    this.buffer = this.feedWords(line, this.buffer);
                 }
             }
         }
