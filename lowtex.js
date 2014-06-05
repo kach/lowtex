@@ -7,7 +7,7 @@
 
 var stream = require("stream"),
     util = require("util"),
-    colors = require("colors");
+    chalk = require("chalk");
 
 function Converter() {
     stream.Transform.call(this);
