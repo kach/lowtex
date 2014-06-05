@@ -19,8 +19,8 @@
   "dependencies": {
     "hyphenation.en-us": "~0.2.1",
     "hypher": "~0.2.1",
-    "cli-color": "~0.3.2",
-    "nomnom": "~1.7.0"
+    "nomnom": "~1.7.0",
+    "colors": "~0.6.2"
   },
   "repository": {
     "type": "git",

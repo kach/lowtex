@@ -7,7 +7,7 @@
 
 var stream = require("stream"),
     util = require("util"),
-    clc = require("cli-color");
+    colors = require("colors");
 
 function Converter() {
     stream.Transform.call(this);
