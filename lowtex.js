@@ -3,6 +3,7 @@
     ---------
     Pronounced 'loh-tekk'.
     Create fancy .txt files.
+    2014 - Hardmath123
 */
 
 var stream = require("stream"),
