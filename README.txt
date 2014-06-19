@@ -10,22 +10,20 @@ here.
                                                                                 
 Getting started                                                                 
 ------- -------                                                                 
-   Install LowTeX with `npm install -g lowtex`. Create a new document in your   
-favorite text editor, preferably set to a mode that wraps lines of text. To     
-compile, use the `lowtex` command.                                              
-                                                                                
-   A LowTeX document consists of text, with interspersed DIRECTIVES, which are  
-prefixed with an `@`. A directive is either a SETTING, a BLOCK, or a COMMAND.   
-Text is processed line-by-line, being wrapped and aligned according to the      
-settings. A blank line (or directive) indicates the end of a paragraph. A line  
-prefixed with `#` is a comment and is skipped silently.                         
-                                                                                
-   A setting is declared with the line `@set <name> <value>`. LowTeX mantains   
-an internal stack of settings. To restore a setting to its previous value, use  
-`@unset <name>`.                                                                
-   A block is declared with the line `@begin <name> <arguments>`, and           
-terminated with the line `@end`. Blocks transform the text inside them. An      
-example of a block is the UNDERLINE block, which underlines the text inside it. 
-   A command is simply `@<name> <arguments>`. For example, @VSPACE N adds `n`   
-blank lines.                                                                    
-                                                                                
+   Install LowTeX with `npm install -g                                          
+lowtex`. Create a new document in your      A setting is declared with the line 
+favorite text editor, preferably set     `@set <name> <value>`. LowTeX mantains 
+to a mode that wraps lines of text. To   an internal stack of settings. To      
+compile, use the `lowtex` command.       restore a setting to its previous      
+                                         value, use `@unset <name>`.            
+   A LowTeX document consists of text,      A block is declared with the line   
+with interspersed DIRECTIVES, which      `@begin <name> <arguments>`, and       
+are prefixed with an `@`. A directive    terminated with the line `@end`.       
+is either a SETTING, a BLOCK, or a       Blocks transform the text inside them. 
+COMMAND. Text is processed               An example of a block is the UNDERLINE 
+line-by-line, being wrapped and          block, which underlines the text       
+aligned according to the settings. A     inside it.                             
+blank line (or directive) indicates         A command is simply `@<name>        
+the end of a paragraph. A line           <arguments>`. For example, @VSPACE N   
+prefixed with `#` is a comment and is    adds `n` blank lines.                  
+skipped silently.                                                               
