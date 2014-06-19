@@ -193,6 +193,26 @@ Converter.prototype.filters.margin = {
         return ans;
     }
 };
+Converter.prototype.filters.twocols = {
+    "begin": function() {
+        this.set("width", Math.floor(this.get("width")/2 - 1));
+    },
+    "end": function(lines) {
+        this.unset("width");
+        var answer = [];
+        for (var i=0; i<lines.length/2; i++) {
+            answer.push(lines[i]
+                + this.nspace(this.get("width") - 2*lines[i].length)
+                + (lines[i + Math.floor(lines.length/2) + 1]
+                    || this.nspace(lines[i].length)));
+        }
+        return answer;
+    }
+}
+
+
+
+
 
 Converter.prototype.commands = {};
 Converter.prototype.commands.vspace = function(n) {

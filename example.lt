@@ -22,6 +22,8 @@ Getting started
 @end underline
 @set indent on
 
+@begin twocols
+
 Install LowTeX with `npm install -g lowtex`. Create a new document in your favorite text editor, preferably set to a mode that wraps lines of text. To compile, use the `lowtex` command.
 
 @vspace
@@ -36,4 +38,4 @@ A block is declared with the line `@begin <name> <arguments>`, and terminated wi
 
 A command is simply `@<name> <arguments>`. For example, **@vspace n** adds `n` blank lines.
 
-@vspace
+@end twocols
