@@ -1,7 +1,3 @@
-
-> lowtex@0.0.3 test /Users/kartikchandra/lowtex
-> cat example.lt | node cli.js
-
                                The LowTeX Manual                                
                                --- ------ ------                                
                                  By Hardmath123                                 
