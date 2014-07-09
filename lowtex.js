@@ -8,7 +8,13 @@
 
 var stream = require("stream"),
     util = require("util"),
-    chalk = require("chalk");
+    chalk = require("chalk"),
+    fs = require("fs"),
+    vm = require("vm");
+
+var pluginList = [];
+
+var pluginDebug = true;
 
 function Converter() {
     stream.Transform.call(this);
@@ -210,15 +216,70 @@ Converter.prototype.filters.twocols = {
     }
 }
 
-
-
-
-
 Converter.prototype.commands = {};
 Converter.prototype.commands.vspace = function(n) {
     if (!n) {n = 1};
     for (var i=0; i<Number(n); i++) {
         this.feedLines([this.nspace(this.get("width"))]);
+    }
+};
+Converter.prototype.commands.plugin = function() {
+    // Do not process the plugin if there are no arguments
+    if (arguments.length === 0) {
+        if (pluginDebug) console.log('Invalid path argument');
+        return;
+    }
+    // Rather than use function arguments, join all possible arguments with space in case of file path with spaces
+    pluginFile = Array.prototype.join.call(arguments, ' '); 
+    if (!fs.existsSync(pluginFile)) {
+        if (pluginDebug) console.log('File did not exist');
+        return;
+    }
+    var contents = fs.readFileSync(pluginFile).toString();
+    // Prepare the plugin run environment
+    var pluginDefaults = {
+        id: null,
+        depends: [],
+        commands: {},
+        filters: {}
+    };
+    var sandbox = {
+        plugin: pluginDefaults,
+        settings: this.settings,
+        console: console
+    };
+    vm.runInNewContext(contents, sandbox);
+    console.log(sandbox);
+    if (sandbox.plugin.id === null || pluginList.indexOf(sandbox.plugin.id !== -1)) {
+        if (pluginDebug) console.log('Invalid plugin id');
+        return;
+    }
+    for (var i = 0; i < sandbox.plugin.depends; ++i) {
+        if (pluginList.indexOf(sandbox.plugin.depends[i]) === -1) {
+            if (pluginDebug) console.log(sandbox.plugin.id + ' missing dependency: ' + sandbox.plugin.depends[i]);
+            return;
+        }
+    }
+    pluginList.push(sandbox.plugin.id);
+    this.settings = sandbox.settings;
+    for (var commandName in sandbox.plugin.commands) {
+        if (typeof sandbox.plugin.commands[commandName] !== 'function') {
+            if (pluginDebug) console.log('Command ' + commandName + ' was not a function!');
+            return;
+        }
+        this.commands[commandName] = sandbox.plugin.commands[commandName];
+    }
+    for (var filterName in sandbox.plugin.filters) {
+        if (typeof sandbox.plugin.filters[filterName] !== 'object') {
+            if (pluginDebug) console.log('Filter ' + filterName + ' was not an object!');
+            return;
+        }
+        if (!sandbox.plugin.filters[filterName].end) {
+            if (pluginDebug) console.log('Filter' + filterName + ' did not contain "end"');
+            return;
+        }
+        this.filters[filterName] = sandbox.plugin.filters[filterName];
+        console.log('added filter ' + filterName)
     }
 };
 

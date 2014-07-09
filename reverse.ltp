@@ -1,0 +1,16 @@
+// Reverse adds a formatter that reverses words
+console.log('executed');
+plugin.id = "reverse";
+plugin.filters["reverse"] = {
+	"end": function(lines) {
+		var ans = [];
+		lines.forEach(function(l) {
+			words = l.split(' ');
+			for (var i = 0; i < words.length; ++i) {
+				words[i] = words[i].split('').reverse().join('');
+			}
+			ans.push(words.join(' '));
+		});
+		return ans;
+	}
+};
