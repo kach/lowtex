@@ -1,5 +1,4 @@
 // Reverse adds a formatter that reverses words
-console.log('executed');
 plugin.id = "reverse";
 plugin.filters["reverse"] = {
 	"end": function(lines) {

@@ -14,7 +14,7 @@ var stream = require("stream"),
 
 var pluginList = [];
 
-var pluginDebug = true;
+var pluginDebug = false;
 
 function Converter() {
     stream.Transform.call(this);
@@ -226,13 +226,13 @@ Converter.prototype.commands.vspace = function(n) {
 Converter.prototype.commands.plugin = function() {
     // Do not process the plugin if there are no arguments
     if (arguments.length === 0) {
-        if (pluginDebug) console.log('Invalid path argument');
+        if (pluginDebug) console.log('Invalid path argument for plugin');
         return;
     }
     // Rather than use function arguments, join all possible arguments with space in case of file path with spaces
-    pluginFile = Array.prototype.join.call(arguments, ' '); 
+    pluginFile = Array.prototype.join.call(arguments, ' ');
     if (!fs.existsSync(pluginFile)) {
-        if (pluginDebug) console.log('File did not exist');
+        if (pluginDebug) console.log('Plugin file did not exist');
         return;
     }
     var contents = fs.readFileSync(pluginFile).toString();
@@ -249,8 +249,7 @@ Converter.prototype.commands.plugin = function() {
         console: console
     };
     vm.runInNewContext(contents, sandbox);
-    console.log(sandbox);
-    if (sandbox.plugin.id === null || pluginList.indexOf(sandbox.plugin.id !== -1)) {
+    if (sandbox.plugin.id === null || pluginList.indexOf(sandbox.plugin.id) !== -1) {
         if (pluginDebug) console.log('Invalid plugin id');
         return;
     }
@@ -268,6 +267,7 @@ Converter.prototype.commands.plugin = function() {
             return;
         }
         this.commands[commandName] = sandbox.plugin.commands[commandName];
+        if (pluginDebug) console.log('added command ' + commandName);
     }
     for (var filterName in sandbox.plugin.filters) {
         if (typeof sandbox.plugin.filters[filterName] !== 'object') {
@@ -279,7 +279,7 @@ Converter.prototype.commands.plugin = function() {
             return;
         }
         this.filters[filterName] = sandbox.plugin.filters[filterName];
-        console.log('added filter ' + filterName)
+        if (pluginDebug) console.log('added filter ' + filterName);
     }
 };
 
