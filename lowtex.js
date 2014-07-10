@@ -270,12 +270,35 @@ Converter.prototype.commands.plugin = function() {
             		}
             	}
             }
+            if (!this.plugins[plugins.depends[i]].enabled) {
+            	if (pluginDebug) console.error(plugin.name + ' missing dependency: ' + plugin.depends[i].name + ' (dependent plugin was disabled)');
+            	return;
+            }
         }
     } else {
         plugin.depends = [];
     }
     this.plugins[plugin.name] = plugin;
-    this.plugins[plugin.name].enabled = false
+    this.plugins[plugin.name].enabled = false;
+    if ('onload' in plugin) {
+    	var ready = plugin.onload.apply(this);
+    	// !!null returns false, so check for null to avoid disabling plugin if no return value for onload is specified
+    	if (ready === null) {
+    		this.plugins[plugin.name].enabled = true;
+    	} else {
+    		this.plugins[plugin.name].enabled = !!ready;
+    	}
+    } else {
+    	this.plugins[plugin.name].enabled = true;
+    }
+    if (!this.plugins[plugin.name].enabled) {
+    	if (pluginDebug) {
+			console.error('Plugin ' + plugin.name + ' successfully added, but was disabled.');
+			console.error('If this was not intentended behavior, check to ensure onload is not defined, returns nothing, or returns a truthy value.');
+		}
+		// If the plugin was disabled, exit before commands and filters can be added
+		return;
+	}
     if ('commands' in plugin) {
         for (var commandName in plugin.commands) {
             if (typeof plugin.commands[commandName] !== 'function') {
@@ -305,23 +328,6 @@ Converter.prototype.commands.plugin = function() {
         }
     } else {
         plugin.filters = {};
-    }
-    if ('onload' in plugin) {
-    	var ready = plugin.onload.apply(this);
-    	// !!null returns false, so check for null to avoid disabling plugin if no return value for onload is specified
-    	if (ready === null) {
-    		this.plugins[plugin.name].enabled = true
-    	} else {
-    		this.plugins[plugin.name].enabled = !!ready;
-    	}
-    } else {
-    	this.plugins[plugin.name].enabled = true
-    }
-    if (pluginDebug) {
-    	if (!this.plugins[plugin.name].enabled) {
-    		console.error('Plugin ' + plugin.name + ' successfully added, but was disabled.');
-    		console.error('If this was not intentended behavior, check to ensure onload is not defined, returns nothing, or returns a truthy value.')
-    	}
     }
 };
 
