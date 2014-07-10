@@ -221,7 +221,7 @@ Converter.prototype.commands.vspace = function(n) {
 Converter.prototype.commands.plugin = function() {
     // Do not process the plugin if there are no arguments
     if (arguments.length === 0) {
-        if (pluginDebug) console.log('Invalid path argument for plugin');
+        if (pluginDebug) console.error('Invalid path argument for plugin');
         return;
     }
     // Rather than use function arguments, join all possible arguments with space in case of file path with spaces
@@ -235,28 +235,28 @@ Converter.prototype.commands.plugin = function() {
     		plugin = require(path.join(process.cwd(), pluginName));
     	} catch (notFoundLocally) {
     		if (pluginDebug) {
-    			console.log();
-    			console.log('Global Search:\n' + notFoundOnNodeSearch);
-    			console.log('Local Search:\n' + notFoundLocally)
-    			console.log();
-    			console.log('Error loading Node module for plugin ' + pluginName + '! See above for stack trace.');
-    			console.log('Ensure the plugin is either in the working directory, or visible to Node.');
+    			console.error();
+    			console.error('Global Search:\n' + notFoundOnNodeSearch);
+    			console.error('Local Search:\n' + notFoundLocally)
+    			console.error();
+    			console.error('Error loading Node module for plugin ' + pluginName + '! See above for stack trace.');
+    			console.error('Ensure the plugin is either in the working directory, or visible to Node.');
     			return;
     		}
     	}
     }
     if (plugin === null) {
-    	if (pluginDebug) console.log('An unknown error occured while loading plugin with identifier ' + pluginName + '!');
+    	if (pluginDebug) console.error('An unknown error occured while loading plugin with identifier ' + pluginName + '!');
     	return;
     }
     if (plugin.name in this.plugins) {
-        if (pluginDebug) console.log('The plugin ' + pluginName + ' or a plugin with the same name is already loaded!');
+        if (pluginDebug) console.error('The plugin ' + pluginName + ' or a plugin with the same name is already loaded!');
         return;
     }
     if ('depends' in plugin) {
         for (var i = 0; i < plugin.depends.length; ++i) {
             if (!plugin.depends[i].name in this.plugins) {
-                if (pluginDebug) console.log(plugin.name + ' missing dependency: ' + plugin.depends[i].name);
+                if (pluginDebug) console.error(plugin.name + ' missing dependency: ' + plugin.depends[i].name);
                 return;
             }
             if ('version' in plugin.depends[i]) {
@@ -264,8 +264,8 @@ Converter.prototype.commands.plugin = function() {
             	var actualVersion = this.plugins[plugin.depends[i].name].version.split('.').map(function(n) { return +n; });
             	if (dependVersion > actualVersion || dependVersion < actualVersion) {
             		if (pluginDebug) {
-            			console.log(plugin.name + ' version mismatch for dependency ' + plugin.depends[i].name);
-            			console.log('Expected version ' + this.plugin.depends[i].version + ' and found version ' + this.plugins[plugin.depends[i].version]);
+            			console.error(plugin.name + ' version mismatch for dependency ' + plugin.depends[i].name);
+            			console.error('Expected version ' + this.plugin.depends[i].version + ' and found version ' + this.plugins[plugin.depends[i].version]);
             			return;
             		}
             	}
@@ -279,11 +279,10 @@ Converter.prototype.commands.plugin = function() {
     if ('commands' in plugin) {
         for (var commandName in plugin.commands) {
             if (typeof plugin.commands[commandName] !== 'function') {
-                if (pluginDebug) console.log('Command ' + commandName + ' was not of type: function');
+                if (pluginDebug) console.error('Command ' + commandName + ' was not of type: function');
                 return;
             }
             this.commands[commandName] = plugin.commands[commandName];
-            if (pluginDebug) console.log('Added command ' + commandName);
         }
     } else {
         plugin.commands = {};
@@ -291,11 +290,11 @@ Converter.prototype.commands.plugin = function() {
     if ('filters' in plugin) {
         for (var filterName in plugin.filters) {
             if (typeof plugin.filters[filterName] !== 'object') {
-                if (pluginDebug) console.log('Filter ' + filterName + ' was not of type object');
+                if (pluginDebug) console.error('Filter ' + filterName + ' was not of type object');
                 return;
             }
             if (!'end' in plugin.filters[filterName]) {
-                if (pluginDebug) console.log('Filter' + filterName + ' did not specify an "end" function');
+                if (pluginDebug) console.error('Filter' + filterName + ' did not specify an "end" function');
                 return;
             }
             this.filters[filterName] = {};
@@ -303,7 +302,6 @@ Converter.prototype.commands.plugin = function() {
                 this.filters[filterName].begin = plugin.filters[filterName].begin;
             }
             this.filters[filterName].end = plugin.filters[filterName].end;
-            if (pluginDebug) console.log('Added filter ' + filterName);
         }
     } else {
         plugin.filters = {};
@@ -320,11 +318,9 @@ Converter.prototype.commands.plugin = function() {
     	this.plugins[plugin.name].enabled = true
     }
     if (pluginDebug) {
-    	if (this.plugins[plugin.name].enabled) {
-    		console.log('Plugin ' + plugin.name + ' successfully added and enabled!');
-    	} else {
-    		console.log('Plugin ' + plugin.name + ' successfully added, but was disabled.');
-    		console.log('If this was not intentended behavior, check to ensure onload is not defined, returns nothing, or returns a truthy value.')
+    	if (!this.plugins[plugin.name].enabled) {
+    		console.error('Plugin ' + plugin.name + ' successfully added, but was disabled.');
+    		console.error('If this was not intentended behavior, check to ensure onload is not defined, returns nothing, or returns a truthy value.')
     	}
     }
 };
