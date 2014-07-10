@@ -9,10 +9,7 @@
 var stream = require("stream"),
     util = require("util"),
     chalk = require("chalk"),
-    fs = require("fs"),
-    vm = require("vm");
-
-var pluginList = [];
+    path = require("path");
 
 var pluginDebug = false;
 
@@ -111,8 +108,6 @@ Converter.prototype.doCommand = function(command) {
         var f = this.stack.pop();
         this.feedLines(f.filter.end.call(this, f.lines, f.args));
         break;
-
-
     case "set":
         this.set(command[1], command[2]);
         break;
@@ -230,58 +225,111 @@ Converter.prototype.commands.plugin = function() {
         return;
     }
     // Rather than use function arguments, join all possible arguments with space in case of file path with spaces
-    pluginFile = Array.prototype.join.call(arguments, ' ');
-    if (!fs.existsSync(pluginFile)) {
-        if (pluginDebug) console.log('Plugin file did not exist');
+    pluginName = Array.prototype.join.call(arguments, ' ');
+    var plugin = null;
+    try {
+    	plugin = require(pluginName);
+    } catch (notFoundOnNodeSearch) {
+    	try {
+    		// Check if the file is in the working directory
+    		plugin = require(path.join(process.cwd(), pluginName));
+    	} catch (notFoundLocally) {
+    		if (pluginDebug) {
+    			console.log();
+    			console.log('Global Search:\n' + notFoundOnNodeSearch);
+    			console.log('Local Search:\n' + notFoundLocally)
+    			console.log();
+    			console.log('Error loading Node module for plugin ' + pluginName + '! See above for stack trace.');
+    			console.log('Ensure the plugin is either in the working directory, or visible to Node.');
+    			return;
+    		}
+    	}
+    }
+    if (plugin === null) {
+    	if (pluginDebug) console.log('An unknown error occured while loading plugin with identifier ' + pluginName + '!');
+    	return;
+    }
+    if (plugin.name in this.plugins) {
+        if (pluginDebug) console.log('The plugin ' + pluginName + ' or a plugin with the same name is already loaded!');
         return;
     }
-    var contents = fs.readFileSync(pluginFile).toString();
-    // Prepare the plugin run environment
-    var pluginDefaults = {
-        id: null,
-        depends: [],
-        commands: {},
-        filters: {}
-    };
-    var sandbox = {
-        plugin: pluginDefaults,
-        settings: this.settings,
-        console: console
-    };
-    vm.runInNewContext(contents, sandbox);
-    if (sandbox.plugin.id === null || pluginList.indexOf(sandbox.plugin.id) !== -1) {
-        if (pluginDebug) console.log('Invalid plugin id');
-        return;
+    if ('depends' in plugin) {
+        for (var i = 0; i < plugin.depends.length; ++i) {
+            if (!plugin.depends[i].name in this.plugins) {
+                if (pluginDebug) console.log(plugin.name + ' missing dependency: ' + plugin.depends[i].name);
+                return;
+            }
+            if ('version' in plugin.depends[i]) {
+            	var dependVersion = plugin.depends[i].version.split('.').map(function(n) { return +n; });
+            	var actualVersion = this.plugins[plugin.depends[i].name].version.split('.').map(function(n) { return +n; });
+            	if (dependVersion > actualVersion || dependVersion < actualVersion) {
+            		if (pluginDebug) {
+            			console.log(plugin.name + ' version mismatch for dependency ' + plugin.depends[i].name);
+            			console.log('Expected version ' + this.plugin.depends[i].version + ' and found version ' + this.plugins[plugin.depends[i].version]);
+            			return;
+            		}
+            	}
+            }
+        }
+    } else {
+        plugin.depends = [];
     }
-    for (var i = 0; i < sandbox.plugin.depends; ++i) {
-        if (pluginList.indexOf(sandbox.plugin.depends[i]) === -1) {
-            if (pluginDebug) console.log(sandbox.plugin.id + ' missing dependency: ' + sandbox.plugin.depends[i]);
-            return;
+    this.plugins[plugin.name] = plugin;
+    this.plugins[plugin.name].enabled = false
+    if ('commands' in plugin) {
+        for (var commandName in plugin.commands) {
+            if (typeof plugin.commands[commandName] !== 'function') {
+                if (pluginDebug) console.log('Command ' + commandName + ' was not of type: function');
+                return;
+            }
+            this.commands[commandName] = plugin.commands[commandName];
+            if (pluginDebug) console.log('Added command ' + commandName);
         }
+    } else {
+        plugin.commands = {};
     }
-    pluginList.push(sandbox.plugin.id);
-    this.settings = sandbox.settings;
-    for (var commandName in sandbox.plugin.commands) {
-        if (typeof sandbox.plugin.commands[commandName] !== 'function') {
-            if (pluginDebug) console.log('Command ' + commandName + ' was not a function!');
-            return;
+    if ('filters' in plugin) {
+        for (var filterName in plugin.filters) {
+            if (typeof plugin.filters[filterName] !== 'object') {
+                if (pluginDebug) console.log('Filter ' + filterName + ' was not of type object');
+                return;
+            }
+            if (!'end' in plugin.filters[filterName]) {
+                if (pluginDebug) console.log('Filter' + filterName + ' did not specify an "end" function');
+                return;
+            }
+            this.filters[filterName] = {};
+            if ('begin' in plugin.filters[filterName]) {
+                this.filters[filterName].begin = plugin.filters[filterName].begin;
+            }
+            this.filters[filterName].end = plugin.filters[filterName].end;
+            if (pluginDebug) console.log('Added filter ' + filterName);
         }
-        this.commands[commandName] = sandbox.plugin.commands[commandName];
-        if (pluginDebug) console.log('added command ' + commandName);
+    } else {
+        plugin.filters = {};
     }
-    for (var filterName in sandbox.plugin.filters) {
-        if (typeof sandbox.plugin.filters[filterName] !== 'object') {
-            if (pluginDebug) console.log('Filter ' + filterName + ' was not an object!');
-            return;
-        }
-        if (!sandbox.plugin.filters[filterName].end) {
-            if (pluginDebug) console.log('Filter' + filterName + ' did not contain "end"');
-            return;
-        }
-        this.filters[filterName] = sandbox.plugin.filters[filterName];
-        if (pluginDebug) console.log('added filter ' + filterName);
+    if ('onload' in plugin) {
+    	var ready = plugin.onload.apply(this);
+    	// !!null returns false, so check for null to avoid disabling plugin if no return value for onload is specified
+    	if (ready === null) {
+    		this.plugins[plugin.name].enabled = true
+    	} else {
+    		this.plugins[plugin.name].enabled = !!ready;
+    	}
+    } else {
+    	this.plugins[plugin.name].enabled = true
+    }
+    if (pluginDebug) {
+    	if (this.plugins[plugin.name].enabled) {
+    		console.log('Plugin ' + plugin.name + ' successfully added and enabled!');
+    	} else {
+    		console.log('Plugin ' + plugin.name + ' successfully added, but was disabled.');
+    		console.log('If this was not intentended behavior, check to ensure onload is not defined, returns nothing, or returns a truthy value.')
+    	}
     }
 };
+
+Converter.prototype.plugins = {};
 
 Converter.prototype.nspace = function(n) {
     return new Array(n+1).join(" ");
