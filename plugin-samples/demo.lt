@@ -1,0 +1,76 @@
+@plugin demo.js
+
+@set width 80
+@set align center
+@vspace
+
+@begin underline-all 3
+Plugin System Demo
+@end underline-all
+
+@vspace
+@set align left
+
+@begin underline-all
+Aside
+@end underline-all
+
+@vspace
+
+This underline with internal whitespace also underlined is written in the plugin demo.js as well! It even has variable padding!
+This plugin is more advanced and is intended to show the potential of plugins, and is not a good example to learn from. To find examples that are
+easier to understand, look at reverse and horizontal-line first.
+
+@vspace
+@vspace
+
+@begin underline-all
+Plugin System Info
+@end underline-all
+
+@vspace
+
+Plugins are used to add commands and features to Lowtex without forcing the user to modify the source of the application. demo.js is a very simplistic plugin that reverses the order of every word in the defined area. It is intended purely as a demo of the plugin system, but is still fully usable. You can import a plugin by using `@plugin <path>` where path is the path to the plugins file. The effect of this can be seen below:
+
+@vspace
+@set align center
+
+@begin reverse
+Hello world!
+@end reverse
+
+@vspace
+@set align left
+
+The orriginal text in this case is hello world.
+
+@vspace
+The source for the plugin can be found in demo.js. In this case, the plugin is adding a filter to Lowtex. Filters are used to create blocks.
+
+
+@vspace
+
+Plugins can also add commands. The following is a demonstration of a plugin that makes a horizontal line across the width of the document. The source for this plugin can be found in demo.js
+
+@vspace
+
+The horizontal line looks like this:
+
+@vspace
+
+@horizontal-line
+
+@vspace
+
+Or with a specified length (in this case 30 characters) like this:
+
+@vspace
+
+@horizontal-line 30
+
+@vspace
+
+For information about plugin development and use as well as the plugin system, see the Lowtex Github project wiki.
+
+
+
