@@ -38,4 +38,8 @@ A block is declared with the line `@begin <name> <arguments>`, and terminated wi
 
 A command is simply `@<name> <arguments>`. For example, **@vspace n** adds `n` blank lines.
 
+@vspace
+
+Lowtex now has the ability to add plugins! See the plugin-samples folder for more info!
+
 @end twocols
