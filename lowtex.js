@@ -94,8 +94,22 @@ Converter.prototype.doCommand = function(command) {
     switch (command[0]) {
     case "begin":
         // Enter a new filter
+        if (!command[1] in this.filters) {
+            if (pluginDebug) console.error('Filter ' + command[1] + 
+                ' was undefined!');
+            break;
+        }
         if (this.filters[command[1]].begin) {
-            this.filters[command[1]].begin.apply(this, command.slice(2));
+            try {
+                this.filters[command[1]].begin.apply(this, command.slice(2));
+            } catch (e) {
+                if (pluginDebug){
+                    console.error(e.stack);
+                    console.error('An error occured while running filter ' +
+                        '@begin ' + command[1]);
+                    break;
+                }
+            }
         }
         this.stack.push({
             "filter": this.filters[command[1]],
@@ -106,7 +120,17 @@ Converter.prototype.doCommand = function(command) {
     case "end":
         // Flush and pop the top filter
         var f = this.stack.pop();
-        this.feedLines(f.filter.end.call(this, f.lines, f.args));
+        try {
+            this.feedLines(f.filter.end.call(this, f.lines, f.args));
+        } catch (e) {
+            if (pluginDebug) {
+                console.error(e.stack);
+                var taggedModifier = command.length > 1 ? ' ' +
+                    command[1] : '';
+                console.error('An error occured while running filter @end' +
+                    + taggedModifier);
+            }
+        }
         break;
     case "set":
         this.set(command[1], command[2]);
@@ -116,7 +140,21 @@ Converter.prototype.doCommand = function(command) {
         break;
 
     default:
-        this.commands[command[0]].apply(this, command.slice(1));
+        if (!command[0] in this.commands) {
+            if (pluginDebug) console.error('Command ' + command[0] + ' was' +
+                'undefined');
+            break;
+        }
+        try {
+            this.commands[command[0]].apply(this, command.slice(1));
+        } catch (e) {
+            if (pluginDebug) {
+                console.error(e.stack);
+                console.error('An error occured while running command ' +
+                    command[0]);
+            }
+            break;
+        }
     }
 };
 
@@ -237,7 +275,7 @@ Converter.prototype.commands.plugin = function() {
     	} catch (notFoundLocally) {
     		if (pluginDebug) {
     			console.error('Global Search:\n' + notFoundOnNodeSearch);
-    			console.error('Local Search:\n' + notFoundLocally)
+    			console.error('Local Search:\n' + notFoundLocally);
     			console.error('Error loading Node module for plugin ' + 
     				pluginName + '! See above for stack trace.');
     			console.error('Ensure the plugin is either in the working ' +
