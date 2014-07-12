@@ -1,0 +1,45 @@
+                                                                                
+                               Plugin System Demo                               
+                            ------------------------                            
+                                                                                
+Aside                                                                           
+-----                                                                           
+                                                                                
+This underline with internal whitespace also underlined is written in the       
+plugin demo.js as well! It even has variable padding!This plugin is more        
+advanced and is intended to show the potential of plugins, and is not a good    
+example to learn from. To find examples that areeasier to understand, look at   
+reverse and horizontal-line first.                                              
+                                                                                
+                                                                                
+Plugin System Info                                                              
+------------------                                                              
+                                                                                
+Plugins are used to add commands and features to Lowtex without forcing the     
+user to modify the source of the application. demo.js is a very simplistic      
+plugin that reverses the order of every word in the defined area. It is         
+intended purely as a demo of the plugin system, but is still fully usable. You  
+can import a plugin by using `@plugin <path>` where path is the path to the     
+plugins file. The effect of this can be seen below:                             
+                                                                                
+                                  olleH !dlrow                                  
+                                                                                
+The orriginal text in this case is hello world.                                 
+                                                                                
+The source for the plugin can be found in demo.js. In this case, the plugin is  
+adding a filter to Lowtex. Filters are used to create blocks.                   
+                                                                                
+Plugins can also add commands. The following is a demonstration of a plugin     
+that makes a horizontal line across the width of the document. The source for   
+this plugin can be found in demo.js                                             
+                                                                                
+The horizontal line looks like this:                                            
+                                                                                
+--------------------------------------------------------------------------------
+                                                                                
+Or with a specified length (in this case 30 characters) like this:              
+                                                                                
+------------------------------
+                                                                                
+For information about plugin development and use as well as the plugin system,  
+see the Lowtex Github project wiki.                                             
