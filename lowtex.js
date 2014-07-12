@@ -336,8 +336,8 @@ Converter.prototype.commands.plugin = function() {
     if ('filters' in plugin) {
         for (var filterName in plugin.filters) {
             if (typeof plugin.filters[filterName] !== 'object') {
-                if (pluginDebug) console.error('Filter ' + filterName + ' was
-                	not of type object');
+                if (pluginDebug) console.error('Filter ' + filterName +
+                	' was not of type object');
                 return;
             }
             if (!'end' in plugin.filters[filterName]) {
