@@ -8,10 +8,7 @@
 
 var stream = require("stream"),
     util = require("util"),
-    chalk = require("chalk"),
-    path = require("path");
-
-var pluginDebug = false;
+    chalk = require("chalk");
 
 function Converter() {
     stream.Transform.call(this);
@@ -108,6 +105,8 @@ Converter.prototype.doCommand = function(command) {
         var f = this.stack.pop();
         this.feedLines(f.filter.end.call(this, f.lines, f.args));
         break;
+
+
     case "set":
         this.set(command[1], command[2]);
         break;
@@ -210,6 +209,10 @@ Converter.prototype.filters.twocols = {
         return answer;
     }
 }
+
+
+
+
 
 Converter.prototype.commands = {};
 Converter.prototype.commands.vspace = function(n) {
