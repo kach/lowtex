@@ -11,7 +11,7 @@ var stream = require("stream"),
     chalk = require("chalk"),
     path = require("path");
 
-var pluginDebug = false;
+var pluginDebug = true;
 
 function Converter() {
     stream.Transform.call(this);
@@ -94,7 +94,7 @@ Converter.prototype.doCommand = function(command) {
     switch (command[0]) {
     case "begin":
         // Enter a new filter
-        if (!command[1] in this.filters) {
+        if (!(command[1] in this.filters)) {
             if (pluginDebug) console.error('Filter ' + command[1] + 
                 ' was undefined!');
             break;
@@ -107,8 +107,9 @@ Converter.prototype.doCommand = function(command) {
                     console.error(e.stack);
                     console.error('An error occured while running filter ' +
                         '@begin ' + command[1]);
-                    break;
                 }
+                process.exit(1);
+                break;
             }
         }
         this.stack.push({
@@ -130,6 +131,8 @@ Converter.prototype.doCommand = function(command) {
                 console.error('An error occured while running filter @end' +
                     + taggedModifier);
             }
+            break;
+            process.exit(1);
         }
         break;
     case "set":
@@ -143,6 +146,7 @@ Converter.prototype.doCommand = function(command) {
         if (!command[0] in this.commands) {
             if (pluginDebug) console.error('Command ' + command[0] + ' was' +
                 'undefined');
+            process.exit(1);
             break;
         }
         try {
@@ -153,6 +157,7 @@ Converter.prototype.doCommand = function(command) {
                 console.error('An error occured while running command ' +
                     command[0]);
             }
+            process.exit(1);
             break;
         }
     }
@@ -260,6 +265,7 @@ Converter.prototype.commands.plugin = function() {
     // Do not process the plugin if there are no arguments
     if (arguments.length === 0) {
         if (pluginDebug) console.error('Invalid path argument for plugin');
+        process.exit(1);
         return;
     }
     // Rather than use function arguments, join all possible arguments with 
@@ -280,6 +286,7 @@ Converter.prototype.commands.plugin = function() {
                     pluginName + '! See above for stack trace.');
                 console.error('Ensure the plugin is either in the working ' +
                     'directory, or visible to Node.');
+                process.exit(1);
                 return;
             }
         }
@@ -287,11 +294,13 @@ Converter.prototype.commands.plugin = function() {
     if (plugin === null) {
         if (pluginDebug) console.error('An unknown error occured while ' +
             'loading plugin with identifier ' + pluginName + '!');
+        process.exit(1);
         return;
     }
     if (plugin.name in this.plugins) {
         if (pluginDebug) console.error('The plugin ' + pluginName + ' or a ' +
             'plugin with the same name is already loaded!');
+        process.exit(1);
         return;
     }
     if ('depends' in plugin) {
@@ -299,6 +308,7 @@ Converter.prototype.commands.plugin = function() {
             if (!plugin.depends[i].name in this.plugins) {
                 if (pluginDebug) console.error(plugin.name + ' missing ' +
                     'dependency: ' + plugin.depends[i].name);
+                process.exit(1);
                 return;
             }
             if (!this.plugins[plugins.depends[i]].enabled) {
@@ -307,6 +317,7 @@ Converter.prototype.commands.plugin = function() {
                         plugin.depends[i].name +' (dependent plugin was ' +
                         'disabled)'
                     );
+                process.exit(1);
                 return;
             }
         }
@@ -344,6 +355,7 @@ Converter.prototype.commands.plugin = function() {
             if (typeof plugin.commands[commandName] !== 'function') {
                 if (pluginDebug) console.error('Command ' +
                     commandName + ' was not of type: function');
+                process.exit(1);
                 return;
             }
             this.commands[commandName] = plugin.commands[commandName];
@@ -356,11 +368,13 @@ Converter.prototype.commands.plugin = function() {
             if (typeof plugin.filters[filterName] !== 'object') {
                 if (pluginDebug) console.error('Filter ' + filterName +
                     ' was not of type object');
+                process.exit(1);
                 return;
             }
             if (!'end' in plugin.filters[filterName]) {
                 if (pluginDebug) console.error('Filter' + filterName + 
                     ' did not specify an "end" function');
+                process.exit(1);
                 return;
             }
             this.filters[filterName] = {};
