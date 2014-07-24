@@ -31,13 +31,13 @@ skipped silently.
 The Plugin System                                                               
 -----------------                                                               
    You might notice that this underline looks different from the other ones     
-you've seen thus far, and that's because it's created using a plugin. Plugins   
-allow develoepers to define their own custom commands and blocks via the use of 
-node modules. Information on how to write plugins will be available on the      
-Github project wiki. To include a plugin, just put the module's .js file in the 
-working directory when you run, or add it to node through npm, and then put     
-`@plugin <plugin-name>` in your .lt file before the use of any features of said 
-plugin.                                                                         
+you've seen thus far. That's because it's created using a special underlining   
+plugin. Plugins allow developers to define their own custom commands and blocks 
+via the use of node modules. Information on how to write plugins will be        
+available on the Github project wiki. To include a plugin, just put the         
+module's .js file in the working directory when you run lowtex, or add it to    
+node through the node package manager, and then put `@plugin <plugin-name>` in  
+your .lt file before you use the plugin's features.                             
                                                                                 
 Plugins Can Also:                                                               
 -----------------                                                               
