@@ -8,7 +8,10 @@
 
 var stream = require("stream"),
     util = require("util"),
-    chalk = require("chalk");
+    chalk = require("chalk"),
+    path = require("path");
+
+var pluginDebug = true;
 
 function Converter() {
     stream.Transform.call(this);
@@ -91,8 +94,23 @@ Converter.prototype.doCommand = function(command) {
     switch (command[0]) {
     case "begin":
         // Enter a new filter
+        if (!(command[1] in this.filters)) {
+            if (pluginDebug) console.error('Filter ' + command[1] + 
+                ' was undefined!');
+            break;
+        }
         if (this.filters[command[1]].begin) {
-            this.filters[command[1]].begin.apply(this, command.slice(2));
+            try {
+                this.filters[command[1]].begin.apply(this, command.slice(2));
+            } catch (e) {
+                if (pluginDebug){
+                    console.error(e.stack);
+                    console.error('An error occured while running filter ' +
+                        '@begin ' + command[1]);
+                }
+                process.exit(1);
+                break;
+            }
         }
         this.stack.push({
             "filter": this.filters[command[1]],
@@ -103,10 +121,20 @@ Converter.prototype.doCommand = function(command) {
     case "end":
         // Flush and pop the top filter
         var f = this.stack.pop();
-        this.feedLines(f.filter.end.call(this, f.lines, f.args));
+        try {
+            this.feedLines(f.filter.end.call(this, f.lines, f.args));
+        } catch (e) {
+            if (pluginDebug) {
+                console.error(e.stack);
+                var taggedModifier = command.length > 1 ? ' ' +
+                    command[1] : '';
+                console.error('An error occured while running filter @end' +
+                    + taggedModifier);
+            }
+            break;
+            process.exit(1);
+        }
         break;
-
-
     case "set":
         this.set(command[1], command[2]);
         break;
@@ -115,7 +143,23 @@ Converter.prototype.doCommand = function(command) {
         break;
 
     default:
-        this.commands[command[0]].apply(this, command.slice(1));
+        if (!command[0] in this.commands) {
+            if (pluginDebug) console.error('Command ' + command[0] + ' was' +
+                'undefined');
+            process.exit(1);
+            break;
+        }
+        try {
+            this.commands[command[0]].apply(this, command.slice(1));
+        } catch (e) {
+            if (pluginDebug) {
+                console.error(e.stack);
+                console.error('An error occured while running command ' +
+                    command[0]);
+            }
+            process.exit(1);
+            break;
+        }
     }
 };
 
@@ -210,10 +254,6 @@ Converter.prototype.filters.twocols = {
     }
 }
 
-
-
-
-
 Converter.prototype.commands = {};
 Converter.prototype.commands.vspace = function(n) {
     if (!n) {n = 1};
@@ -221,6 +261,135 @@ Converter.prototype.commands.vspace = function(n) {
         this.feedLines([this.nspace(this.get("width"))]);
     }
 };
+Converter.prototype.commands.plugin = function() {
+    // Do not process the plugin if there are no arguments
+    if (arguments.length === 0) {
+        if (pluginDebug) console.error('Invalid path argument for plugin');
+        process.exit(1);
+        return;
+    }
+    // Rather than use function arguments, join all possible arguments with 
+    // space in case of file path with spaces
+    pluginName = Array.prototype.join.call(arguments, ' ');
+    var plugin = null;
+    try {
+        plugin = require(pluginName);
+    } catch (notFoundOnNodeSearch) {
+        try {
+            // Check if the file is in the working directory
+            plugin = require(path.join(process.cwd(), pluginName));
+        } catch (notFoundLocally) {
+            if (pluginDebug) {
+                console.error('Global Search:\n' + notFoundOnNodeSearch);
+                console.error('Local Search:\n' + notFoundLocally);
+                console.error('Error loading Node module for plugin ' + 
+                    pluginName + '! See above for stack trace.');
+                console.error('Ensure the plugin is either in the working ' +
+                    'directory, or visible to Node.');
+                process.exit(1);
+                return;
+            }
+        }
+    }
+    if (plugin === null) {
+        if (pluginDebug) console.error('An unknown error occured while ' +
+            'loading plugin with identifier ' + pluginName + '!');
+        process.exit(1);
+        return;
+    }
+    if (plugin.name in this.plugins) {
+        if (pluginDebug) console.error('The plugin ' + pluginName + ' or a ' +
+            'plugin with the same name is already loaded!');
+        process.exit(1);
+        return;
+    }
+    if ('depends' in plugin) {
+        for (var i = 0; i < plugin.depends.length; ++i) {
+            if (!plugin.depends[i].name in this.plugins) {
+                if (pluginDebug) console.error(plugin.name + ' missing ' +
+                    'dependency: ' + plugin.depends[i].name);
+                process.exit(1);
+                return;
+            }
+            if (!this.plugins[plugins.depends[i]].enabled) {
+                if (pluginDebug)
+                    console.error(plugin.name + ' missing dependency: ' +
+                        plugin.depends[i].name +' (dependent plugin was ' +
+                        'disabled)'
+                    );
+                process.exit(1);
+                return;
+            }
+        }
+    } else {
+        plugin.depends = [];
+    }
+    this.plugins[plugin.name] = plugin;
+    this.plugins[plugin.name].enabled = false;
+    if ('onload' in plugin) {
+        var ready = plugin.onload.apply(this);
+        // !!null returns false, so check for null to avoid disabling plugin 
+        // if no return value for onload is specified
+        if (ready === null) {
+            this.plugins[plugin.name].enabled = true;
+        } else {
+            this.plugins[plugin.name].enabled = !!ready;
+        }
+    } else {
+        this.plugins[plugin.name].enabled = true;
+    }
+    if (!this.plugins[plugin.name].enabled) {
+        if (pluginDebug) {
+            console.error('Plugin ' + plugin.name + ' successfully added, ' +
+                'but was disabled.');
+            console.error('If this was not intentended behavior, check to ' +
+                'ensure onload is not defined, returns nothing, or returns ' +
+                'a truthy value.');
+        }
+        // If the plugin was disabled, exit before commands and
+        // filters can be added
+        return;
+    }
+    if ('commands' in plugin) {
+        for (var commandName in plugin.commands) {
+            if (typeof plugin.commands[commandName] !== 'function') {
+                if (pluginDebug) console.error('Command ' +
+                    commandName + ' was not of type: function');
+                process.exit(1);
+                return;
+            }
+            this.commands[commandName] = plugin.commands[commandName];
+        }
+    } else {
+        plugin.commands = {};
+    }
+    if ('filters' in plugin) {
+        for (var filterName in plugin.filters) {
+            if (typeof plugin.filters[filterName] !== 'object') {
+                if (pluginDebug) console.error('Filter ' + filterName +
+                    ' was not of type object');
+                process.exit(1);
+                return;
+            }
+            if (!'end' in plugin.filters[filterName]) {
+                if (pluginDebug) console.error('Filter' + filterName + 
+                    ' did not specify an "end" function');
+                process.exit(1);
+                return;
+            }
+            this.filters[filterName] = {};
+            if ('begin' in plugin.filters[filterName]) {
+                this.filters[filterName].begin =
+                    plugin.filters[filterName].begin;
+            }
+            this.filters[filterName].end = plugin.filters[filterName].end;
+        }
+    } else {
+        plugin.filters = {};
+    }
+};
+
+Converter.prototype.plugins = {};
 
 Converter.prototype.nspace = function(n) {
     return new Array(n+1).join(" ");

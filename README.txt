@@ -27,3 +27,29 @@ blank line (or directive) indicates         A command is simply `@<name>
 the end of a paragraph. A line           <arguments>`. For example, @VSPACE N   
 prefixed with `#` is a comment and is    adds `n` blank lines.                  
 skipped silently.                                                               
+                                                                                
+The Plugin System                                                               
+-----------------                                                               
+   You might notice that this underline looks different from the other ones     
+you've seen thus far. That's because it's created using a special underlining   
+plugin. Plugins allow developers to define their own custom commands and blocks 
+via the use of node modules. Information on how to write plugins will be        
+available on the Github project wiki. To include a plugin, just put the         
+module's .js file in the working directory when you run lowtex, or add it to    
+node through the node package manager, and then put `@plugin <plugin-name>` in  
+your .lt file before you use the plugin's features.                             
+                                                                                
+Plugins Can Also:                                                               
+-----------------                                                               
+                                                                                
+Reverse text:                                                                   
+                                                                                
+                                  olleH !dlroW                                  
+                                                                                
+Add horizontal lines:                                                           
+                                                                                
+--------------------------------------------------------------------------------
+                                                                                
+The plugin used in this file can be found in demo.js, and contains the commands 
+and filters: `@underline-all <padding>`, '@<begin/end> reverse',                
+`@horizontal-line <length>'.                                                    
