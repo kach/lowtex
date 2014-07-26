@@ -49,31 +49,22 @@ A command is simply `@<name> <arguments>`. For example, **@vspace n** adds `n` b
 The Plugin System
 @end underline-all
 @set indent on
-You might notice that this underline looks different from the other ones you've seen thus far. That's because it's created using a special underlining plugin. Plugins allow developers to define their own custom commands and blocks via the use of node modules. Information on how to write plugins will be available on the Github project wiki. To include a plugin, just put the module's .js file in the working directory when you run lowtex, or add it to node through the node package manager, and then put `@plugin <plugin-name>` in your .lt file before you use the plugin's features.
+You might notice that the heading above was underlined differently from the other ones you've seen thus far. That is because it was created using a special underlining plugin. Plugins allow developers to define their own custom commands and blocks via the use of node modules. To include a plugin, put the module's .js file in the working directory when you run lowtex. Then put `@plugin <plugin-name>` in your .lt file before you use the plugin's features.
 
-@vspace
-
-@set indent off
-@begin underline-all
-Plugins Can Also:
-@end underline-all
-@set indent on
-
-@vspace
+Some more examples:
 
 @set indent off
-Reverse text:
 
 @vspace
 @set align center
 @begin reverse
-Hello World!
+reversed text
 @end reverse
 @set align left
 
 @vspace
 
-Add horizontal lines:
+Horizontal lines:
 
 @vspace
 
@@ -82,7 +73,3 @@ Add horizontal lines:
 @vspace
 
 The plugin used in this file can be found in demo.js, and contains the commands and filters: `@underline-all <padding>`, '@<begin/end> reverse', `@horizontal-line <length>'.
-
-
-
-

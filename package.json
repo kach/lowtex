@@ -5,7 +5,7 @@
   "main": "lowtex.js",
   "bin": "cli.js",
   "scripts": {
-    "test": "cat example.lt | node cli.js"
+    "test": "npm install && cat example.lt | node cli.js"
   },
   "keywords": [
     "text",
