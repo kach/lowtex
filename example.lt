@@ -72,4 +72,6 @@ Horizontal lines:
 
 @vspace
 
-The plugin used in this file can be found in demo.js, and contains the commands and filters: `@underline-all <padding>`, '@<begin/end> reverse', `@horizontal-line <length>'.
+The plugin used in this file can be found in demo.js, and contains the commands and filters: `@underline-all <padding>`, '@<begin/end> reverse', `@horizontal-line [length]'.
+
+Plugins were implemented by Sam Lazarus (@sl).
