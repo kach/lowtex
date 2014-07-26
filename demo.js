@@ -1,6 +1,6 @@
-/* 
-    demo-plugin.js
-    ----------
+/*
+    demo.js
+    -------
     Adds a filter to Lowtex that reverses the character order of words, and a command
     that inserts a horizontal line of variable length.
 
