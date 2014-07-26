@@ -51,27 +51,6 @@ The Plugin System
 @set indent on
 You might notice that the heading above was underlined differently from the other ones you've seen thus far. That is because it was created using a special underlining plugin. Plugins allow developers to define their own custom commands and blocks via the use of node modules. To include a plugin, put the module's .js file in the working directory when you run lowtex. Then put `@plugin <plugin-name>` in your .lt file before you use the plugin's features.
 
-Some more examples:
-
-@set indent off
-
-@vspace
-@set align center
-@begin reverse
-reversed text
-@end reverse
-@set align left
-
-@vspace
-
-Horizontal lines:
-
-@vspace
-
-@horizontal-line
-
-@vspace
-
 The plugin used in this file can be found in demo.js, and contains the commands and filters: `@underline-all <padding>`, '@<begin/end> reverse', `@horizontal-line [length]'.
 
 Plugins were implemented by Sam Lazarus (@sl).

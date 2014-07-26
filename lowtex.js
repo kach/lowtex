@@ -95,7 +95,7 @@ Converter.prototype.doCommand = function(command) {
     case "begin":
         // Enter a new filter
         if (!(command[1] in this.filters)) {
-            if (pluginDebug) console.error('Filter ' + command[1] + 
+            if (pluginDebug) console.error('Filter ' + command[1] +
                 ' was undefined!');
             break;
         }
@@ -268,7 +268,7 @@ Converter.prototype.commands.plugin = function() {
         process.exit(1);
         return;
     }
-    // Rather than use function arguments, join all possible arguments with 
+    // Rather than use function arguments, join all possible arguments with
     // space in case of file path with spaces
     pluginName = Array.prototype.join.call(arguments, ' ');
     var plugin = null;
@@ -282,7 +282,7 @@ Converter.prototype.commands.plugin = function() {
             if (pluginDebug) {
                 console.error('Global Search:\n' + notFoundOnNodeSearch);
                 console.error('Local Search:\n' + notFoundLocally);
-                console.error('Error loading Node module for plugin ' + 
+                console.error('Error loading Node module for plugin ' +
                     pluginName + '! See above for stack trace.');
                 console.error('Ensure the plugin is either in the working ' +
                     'directory, or visible to Node.');
@@ -328,7 +328,7 @@ Converter.prototype.commands.plugin = function() {
     this.plugins[plugin.name].enabled = false;
     if ('onload' in plugin) {
         var ready = plugin.onload.apply(this);
-        // !!null returns false, so check for null to avoid disabling plugin 
+        // !!null returns false, so check for null to avoid disabling plugin
         // if no return value for onload is specified
         if (ready === null) {
             this.plugins[plugin.name].enabled = true;
@@ -372,7 +372,7 @@ Converter.prototype.commands.plugin = function() {
                 return;
             }
             if (!'end' in plugin.filters[filterName]) {
-                if (pluginDebug) console.error('Filter' + filterName + 
+                if (pluginDebug) console.error('Filter' + filterName +
                     ' did not specify an "end" function');
                 process.exit(1);
                 return;
