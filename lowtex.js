@@ -8,7 +8,6 @@
 
 var stream = require("stream"),
     util = require("util"),
-    chalk = require("chalk"),
     path = require("path");
 
 var pluginDebug = true;
