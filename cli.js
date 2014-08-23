@@ -10,12 +10,6 @@ var opts = require("nomnom")
         abbr: 'o',
         help: 'output file'
     })
-    .option('ansi', {
-        abbr: 'a',
-        help: 'Trigger ANSI mode',
-        flag: true,
-        default: false
-    })
     .option('version', {
         abbr: 'v',
         help: 'Print version and exit',
