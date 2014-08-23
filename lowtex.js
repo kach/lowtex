@@ -180,8 +180,16 @@ Converter.prototype._flush = function() {
     this.push(this.stack[0].lines.join("\n") + "\n");
 }
 
+Converter.prototype.nspace = function(n) {
+    return new Array(n+1).join(" ");
+};
+
+
+// Some useful filters and commands
 
 Converter.prototype.filters = {};
+Converter.prototype.commands = {};
+
 Converter.prototype.filters.underline = {
     "end": function(lines) {
         var ans = [];
@@ -223,12 +231,27 @@ Converter.prototype.filters.twocols = {
     }
 }
 
-
-Converter.prototype.commands = {};
+Converter.prototype.filters.li = {
+    "begin": function() {
+        this.set("width", this.get("width") - 2);
+        this.set("indent", "off");
+    },
+    "end": function(lines) {
+        this.unset("width");
+        
+        return lines.map(function(line, index) {
+            if (index === 0) {
+                return "- " + line;
+            } else {
+                return "  " + line;
+            }
+        });
+    }
+};
 
 Converter.prototype.commands.require = function(p) {
     require(path.join(process.cwd(), p))(this);
-}
+};
 
 Converter.prototype.commands.vspace = function(n) {
     if (!n) {n = 1};
@@ -240,10 +263,7 @@ Converter.prototype.commands.vspace = function(n) {
 Converter.prototype.commands.lipsum = function() {
     var buf = this.feedWords(require("./lipsum.json"), "   ");
     this.feedLines([this.align(buf)]);
-}
-
-Converter.prototype.nspace = function(n) {
-    return new Array(n+1).join(" ");
 };
+
 
 module.exports = Converter;
