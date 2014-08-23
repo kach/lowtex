@@ -1,6 +1,6 @@
 {
   "name": "lowtex",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fancy .txt files",
   "main": "lowtex.js",
   "bin": "cli.js",
