@@ -1,4 +1,4 @@
-@plugin demo.js
+@require demo.js
 
 @set width 80
 @set align center
@@ -45,12 +45,19 @@ A command is simply `@<name> <arguments>`. For example, **@vspace n** adds `n` b
 @vspace
 
 @set indent off
-@begin underline-all
-The Plugin System
-@end underline-all
+@begin underline
+Modules
+@end underline
 @set indent on
-You might notice that the heading above was underlined differently from the other ones you've seen thus far. That is because it was created using a special underlining plugin. Plugins allow developers to define their own custom commands and blocks via the use of node modules. To include a plugin, put the module's .js file in the working directory when you run lowtex. Then put `@plugin <plugin-name>` in your .lt file before you use the plugin's features.
 
-The plugin used in this file can be found in demo.js, and contains the commands and filters: `@underline-all <padding>`, '@<begin/end> reverse', `@horizontal-line [length]'.
+LowTeX is highliy configurable. You can (and should!) write your own modules for your documents.
 
-Plugins were implemented by Sam Lazarus (@sl).
+@set pre on
+module.exports = function(filters, commands) {
+  commands.banana = function() {
+    this.feedLines(["Banana" + this.nspace(this.get("width") - 6)]);
+  };
+};
+@set pre off
+
+@banana
