@@ -18,24 +18,30 @@ LowTeX--pronounced "low-tech"--is a small text transformation package that gener
 
 @vspace
 
+@set align center
+
 @set indent off
 @begin underline
 Philosophy
 @end underline
 @unset indent
 
-@begin twocols
-
-@set align center
-
 Monospace is nice.
 
 Everything is scriptable.
 
-#Readable sources.
+Readable sources.
+
+@vspace
+
+Make it a filter.
+
+Write small, powerful modules.
+
+Format haikus well.
+
 @unset align
 
-@end twocols
 
 @vspace
 
