@@ -42,7 +42,7 @@ Converter.prototype.unset = function(name) {
 };
 Converter.prototype.get = function(name) {
     var val = this.settings[name][this.settings[name].length-1];
-    if (Number(val)) val = Number(val);
+    if (!isNaN(val)) val = Number(val);
     if (val === "on") val = true;
     if (val === "off") val = false;
     return val;
