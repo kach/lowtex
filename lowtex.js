@@ -213,10 +213,10 @@ Converter.prototype.filters.twocols = {
     "end": function(lines) {
         this.unset("width");
         var answer = [];
-        for (var i=0; i<lines.length/2; i++) {
+        for (var i=0; i<Math.floor((lines.length-1)/2)+1; i++) {
             answer.push(lines[i]
                 + this.nspace(this.get("width") - 2*lines[i].length)
-                + (lines[i + Math.floor(lines.length/2) + 1]
+                + (lines[i + Math.floor((lines.length-1)/2) + 1]
                     || this.nspace(lines[i].length)));
         }
         return answer;
