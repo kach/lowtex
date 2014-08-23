@@ -50,8 +50,14 @@ Modules
 @end underline
 @set indent on
 
-LowTeX is highliy configurable. You can (and should!) write your own modules for your documents.
+NOTE: LowTeX is now **incompatible** with the old module system implemented by @sl.
 
+LowTeX is highly configurable. You can (and should!) write your own modules for your documents. Modules are nodejs-style. Your module exports a function, which accepts a converter instance as an argument, and modifies it somehow.
+
+Modules are imported using the `@require <path>` syntax, where the path is relative to the current working directory.
+
+@vspace
+@begin margin 4
 @set pre on
 module.exports = function(converter) {
   converter.commands.banana = function() {
@@ -59,3 +65,4 @@ module.exports = function(converter) {
   };
 };
 @set pre off
+@end
