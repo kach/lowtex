@@ -51,7 +51,7 @@ Converter.prototype.feedWords = function(line, b) {
         return b.toUpperCase();
     });
     var words = line.split(/\s+/);
-    var buffer = b;
+    var buffer = b || "";
     var needsSpace = false;
     for (var i=0; i<words.length; i++) {
         if ((buffer + " " + words[i]).length < this.get("width")) {
@@ -86,28 +86,34 @@ Converter.prototype.feedLines = function(lines) {
     Array.prototype.push.apply(l.lines, lines);
 };
 
+Converter.prototype.begin_filter = function(command, args) {
+    // Enter a new filter
+    if (!(command in this.filters)) {
+        throw new Error("What's " + command + "?");
+    }
+    if (this.filters[command].begin) {
+        this.filters[command].begin.apply(this, args);
+    }
+    this.stack.push({
+        "filter": this.filters[command],
+        "lines": [],
+        "args": args
+    });
+};
+
+Converter.prototype.end_filter = function() {
+    // Flush and pop the top filter
+    var f = this.stack.pop();
+    this.feedLines(f.filter.end.call(this, f.lines, f.args));
+};
 
 Converter.prototype.doCommand = function(command) {
     switch (command[0]) {
     case "begin":
-        // Enter a new filter
-        if (!(command[1] in this.filters)) {
-            throw new Error("What's " + command[1] + "?");
-            break;
-        }
-        if (this.filters[command[1]].begin) {
-            this.filters[command[1]].begin.apply(this, command.slice(2));
-        }
-        this.stack.push({
-            "filter": this.filters[command[1]],
-            "lines": [],
-            "args": command.slice(2)
-        });
+        this.begin_filter(command[1], command.slice(2));
         break;
     case "end":
-        // Flush and pop the top filter
-        var f = this.stack.pop();
-        this.feedLines(f.filter.end.call(this, f.lines, f.args));
+        this.end_filter();
         break;
     case "set":
         this.set(command[1], command[2]);
@@ -230,6 +236,11 @@ Converter.prototype.commands.vspace = function(n) {
         this.feedLines([this.nspace(this.get("width"))]);
     }
 };
+
+Converter.prototype.commands.lipsum = function() {
+    var buf = this.feedWords(require("./lipsum.json"), "   ");
+    this.feedLines([this.align(buf)]);
+}
 
 Converter.prototype.nspace = function(n) {
     return new Array(n+1).join(" ");

@@ -20,9 +20,29 @@ LowTeX--pronounced "low-tech"--is a small text transformation package that gener
 
 @set indent off
 @begin underline
+Philosophy
+@end underline
+@unset indent
+
+@begin twocols
+
+@set align center
+Monospace is nice. 
+
+Everything is scriptable.
+
+#Readable sources.
+@unset align
+
+@end twocols
+
+@vspace
+
+@set indent off
+@begin underline
 Getting started
 @end underline
-@set indent on
+@unset indent
 
 @begin twocols
 
@@ -66,3 +86,6 @@ module.exports = function(converter) {
 };
 @set pre off
 @end
+@vspace
+
+Converters expose the @ syntax with methods such as set(name, value), get(name), unset(name), begin_filter(name, args), and end_filter().
