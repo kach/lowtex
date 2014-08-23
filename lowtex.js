@@ -110,9 +110,11 @@ Converter.prototype.end_filter = function() {
 Converter.prototype.doCommand = function(command) {
     switch (command[0]) {
     case "begin":
+    case "!":
         this.begin_filter(command[1], command.slice(2));
         break;
     case "end":
+    case "/":
         this.end_filter();
         break;
     case "set":

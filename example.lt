@@ -18,12 +18,6 @@ LowTeX--pronounced "low-tech"--is a small text transformation package that gener
 
 @set align center
 
-@set indent off
-@begin underline
-Philosophy
-@end underline
-@unset indent
-
 Monospace is nice.
 
 Everything is scriptable.
@@ -39,7 +33,6 @@ Write small, powerful modules.
 Format haikus well.
 
 @unset align
-
 
 @vspace
 
@@ -64,6 +57,8 @@ A setting is declared with the line `@set <name> <value>`. LowTeX mantains an in
 A block is declared with the line `@begin <name> <arguments>`, and terminated with the line `@end`. Blocks transform the text inside them. An example of a block is the **underline** block, which underlines the text inside it.
 
 A command is simply `@<name> <arguments>`. For example, **@vspace n** adds `n` blank lines.
+
+`begin` and `end` can be abbreviated to `!` and `/`, respectively.
 
 @end twocols
 
