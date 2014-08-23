@@ -53,11 +53,9 @@ Modules
 LowTeX is highliy configurable. You can (and should!) write your own modules for your documents.
 
 @set pre on
-module.exports = function(filters, commands) {
-  commands.banana = function() {
+module.exports = function(converter) {
+  converter.commands.banana = function() {
     this.feedLines(["Banana" + this.nspace(this.get("width") - 6)]);
   };
 };
 @set pre off
-
-@banana

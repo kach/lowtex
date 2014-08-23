@@ -10,8 +10,6 @@ var stream = require("stream"),
     util = require("util"),
     path = require("path");
 
-var pluginDebug = true;
-
 function Converter() {
     stream.Transform.call(this);
 
@@ -98,17 +96,7 @@ Converter.prototype.doCommand = function(command) {
             break;
         }
         if (this.filters[command[1]].begin) {
-            try {
-                this.filters[command[1]].begin.apply(this, command.slice(2));
-            } catch (e) {
-                if (pluginDebug){
-                    console.error(e.stack);
-                    console.error('An error occured while running filter ' +
-                        '@begin ' + command[1]);
-                }
-                process.exit(1);
-                break;
-            }
+            this.filters[command[1]].begin.apply(this, command.slice(2));
         }
         this.stack.push({
             "filter": this.filters[command[1]],
@@ -119,19 +107,7 @@ Converter.prototype.doCommand = function(command) {
     case "end":
         // Flush and pop the top filter
         var f = this.stack.pop();
-        try {
-            this.feedLines(f.filter.end.call(this, f.lines, f.args));
-        } catch (e) {
-            if (pluginDebug) {
-                console.error(e.stack);
-                var taggedModifier = command.length > 1 ? ' ' +
-                    command[1] : '';
-                console.error('An error occured while running filter @end' +
-                    + taggedModifier);
-            }
-            break;
-            process.exit(1);
-        }
+        this.feedLines(f.filter.end.call(this, f.lines, f.args));
         break;
     case "set":
         this.set(command[1], command[2]);
@@ -142,8 +118,7 @@ Converter.prototype.doCommand = function(command) {
 
     default:
         if (!command[0] in this.commands) {
-            if (pluginDebug) console.error('Command ' + command[0] + ' was' +
-                'undefined');
+            console.error("What's " + command[0] + "?");
             process.exit(1);
             break;
         }
@@ -246,7 +221,7 @@ Converter.prototype.filters.twocols = {
 Converter.prototype.commands = {};
 
 Converter.prototype.commands.require = function(p) {
-    require(path.join(process.cwd(), p))(this.filters, this.commands);
+    require(path.join(process.cwd(), p))(this);
 }
 
 Converter.prototype.commands.vspace = function(n) {
