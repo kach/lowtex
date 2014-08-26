@@ -16,6 +16,7 @@ LowTeX--pronounced "low-tech"--is a small text transformation package that gener
 
 @vspace
 
+
 @set align center
 
 Monospace is nice.
@@ -66,9 +67,29 @@ A command is simply `@<name> <arguments>`. For example, **@vspace n** adds `n` b
 
 @set indent off
 @begin underline
+Planned features
+@end underline
+@unset indent
+@vspace
+@begin list 1
+@item
+Embedded tables
+@item
+Figlet support for headers, etc.
+@item
+Better documentation
+@item
+More ordered list styles, such as alphabetized and roman.
+@item
+Better error catching and messages
+@end list
+@vspace
+
+@set indent off
+@begin underline
 Modules
 @end underline
-@set indent on
+@unset indent
 
 NOTE: LowTeX is now **incompatible** with the old module system implemented by @sl.
 

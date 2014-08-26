@@ -32,6 +32,10 @@ util.inherits(Converter, stream.Transform);
 
 // Utilities for managing the settings stack.
 Converter.prototype.set = function(name, value) {
+    if (!this.settings[name]) {
+        this.settings[name] = [];
+    }
+    
     this.settings[name].push(value);
 };
 Converter.prototype.unset = function(name) {
@@ -104,7 +108,7 @@ Converter.prototype.begin_filter = function(command, args) {
 Converter.prototype.end_filter = function() {
     // Flush and pop the top filter
     var f = this.stack.pop();
-    this.feedLines(f.filter.end.call(this, f.lines, f.args));
+    this.feedLines(f.filter.end.apply(this, [f.lines].concat(f.args)));
 };
 
 Converter.prototype.doCommand = function(command) {
@@ -206,12 +210,12 @@ Converter.prototype.filters.margin = {
     "begin": function(size) {
         this.set("width", this.get("width") - Number(size));
     },
-    "end": function(lines, args) {
+    "end": function(lines, size) {
         this.unset("width");
         var ans = [];
         var t = this;
         lines.forEach(function(l) {
-            ans.push(t.nspace(Number(args[0])) + l);
+            ans.push(t.nspace(Number(size)) + l);
         });
         return ans;
     }
@@ -233,27 +237,81 @@ Converter.prototype.filters.twocols = {
     }
 }
 
-Converter.prototype.filters.li = {
-    "begin": function() {
-        this.set("width", this.get("width") - 2);
+Converter.prototype.filters.list = {
+    "begin": function(symbol, size) {
+        var len;
+        if (symbol) {
+            if (["a", "1"].indexOf(symbol) === -1) {
+                len = symbol.length;
+            } else {
+                len = Number(size) || 3;
+            }
+        } else {
+            len = "-".length;
+        }
+        this.set("width", this.get("width") - len - 1);
         this.set("indent", "off");
     },
-    "end": function(lines) {
+    "end": function(lines, symbol, size) {
         this.unset("width");
         
-        return lines.map(function(line, index) {
-            if (index === 0) {
-                return "- " + line;
+        
+        var len;
+        if (symbol) {
+            if (["a", "1"].indexOf(symbol) === -1) {
+                len = symbol.length;
             } else {
-                return "  " + line;
+                len = Number(size) || 3;
             }
-        });
+        } else {
+            len = "-".length;
+        }
+        
+        var item = true;
+        var flag = this.commands.item.flag;
+        var counter = 0; 
+        var icon;
+        if (!symbol) {
+            icon = "-";
+        } else if (symbol === "1") {
+            icon = "1";
+        } else {
+            icon = symbol;
+        }
+        var out = [];
+        lines.forEach(function(line, index) {
+            if (line === flag) {
+                item = true;
+                counter++;
+                if (symbol === "1") {
+                    icon = counter + ".";
+                }
+            } else {
+                if (item) {
+                    item = false;
+                    out.push(this.nspace(len - icon.toString().length) + icon + " " + line);
+                } else {
+                    out.push(this.nspace(len+1) + line);
+                }
+            }
+        }.bind(this));
+        return out;
     }
 };
 
 Converter.prototype.commands.require = function(p) {
     require(path.join(process.cwd(), p))(this);
 };
+
+Converter.prototype.commands.item = function() {
+    if (this.stack[this.stack.length-1].filter !== this.filters.list) {
+        console.error("Items only in lists.");
+        process.exit(1);
+    }
+    this.feedLines([this.commands.item.flag]);
+};
+
+Converter.prototype.commands.item.flag = {};
 
 Converter.prototype.commands.vspace = function(n) {
     if (!n) {n = 1};

@@ -37,14 +37,22 @@ prefixed with `#` is a comment and is       `begin` and `end` can be
 skipped silently.                        abbreviated to `!` and `/`,            
                                          respectively.                          
                                                                                 
+Planned features                                                                
+------- --------                                                                
+                                                                                
+ 1. Embedded tables                                                             
+ 2. Figlet support for headers, etc.                                            
+ 3. Better documentation                                                        
+ 4. More ordered list styles, such as alphabetized and roman.                   
+ 5. Better error catching and messages                                          
+                                                                                
 Modules                                                                         
 -------                                                                         
-   NOTE: LowTeX is now INCOMPATIBLE with the old module system implemented by   
-@sl.                                                                            
-   LowTeX is highly configurable. You can (and should!) write your own modules  
-for your documents. Modules are nodejs-style. Your module exports a function,   
-which accepts a converter instance as an argument, and modifies it somehow.     
-   Modules are imported using the `@require <path>` syntax, where the path is   
+NOTE: LowTeX is now INCOMPATIBLE with the old module system implemented by @sl. 
+LowTeX is highly configurable. You can (and should!) write your own modules for 
+your documents. Modules are nodejs-style. Your module exports a function, which 
+accepts a converter instance as an argument, and modifies it somehow.           
+Modules are imported using the `@require <path>` syntax, where the path is      
 relative to the current working directory.                                      
                                                                                 
     module.exports = function(converter) {
@@ -53,5 +61,5 @@ relative to the current working directory.
       };
     };
                                                                                 
-   Converters expose the @ syntax with methods such as set(name, value),        
+Converters expose the @ syntax with methods such as set(name, value),           
 get(name), unset(name), begin_filter(name, args), and end_filter().             
